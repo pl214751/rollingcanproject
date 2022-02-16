@@ -1,0 +1,35 @@
+import cv2
+import numpy as np
+video = cv2.VideoCapture("/Users/local/Desktop/IMG-2049.MOV")
+
+frame_width = int(video.get(3))
+frame_height = int(video.get(4))
+circledetected = 0
+output = cv2.VideoWriter('outputpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+while video.isOpened():
+ ret, frame = video.read()
+ newvid = frame.copy()
+ font = cv2.FONT_HERSHEY_SIMPLEX
+ cap = cv2.VideoCapture('/Users/local/Desktop/IMG-2049.MOV')
+ totalframecount = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+ cv2.putText(frame,str(totalframecount),(50,50),font,1,(0,255,255),2,cv2.LINE_4)
+ if ret == True:
+    output.write(frame)
+    gray = cv2.cvtColor(newvid, cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 9, 11)
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 0.9, 100)
+    if circles is not None:
+     circles = np.round(circles[0, :]).astype("int")
+     for (x, y, r) in circles:
+      cv2.circle(newvid, (x, y), r, (0, 0, 255), 3)
+      cv2.circle(newvid, (x, y), 0, (0, 255, 0), 7)
+      circledetected += 1
+    cv2.putText(newvid,str(circledetected),(50,50),font,1,(0,255,255),2,cv2.LINE_4)
+    cv2.imshow('Window', np.hstack([frame, newvid]))
+    if cv2.waitKey(2) & 0xFF == ord('q'):
+       break
+ else:
+    break
+
+video.release()
+output.release()
